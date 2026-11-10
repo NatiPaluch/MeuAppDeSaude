@@ -7,6 +7,7 @@ Um aplicativo moderno, acessível e *offline-first* desenvolvido em React Native
 - **React Native & Expo (SDK 54)**: Framework base.
 - **TypeScript**: Para tipagem estática e segurança do código.
 - **Zustand**: Gerenciamento de estado global focado no funcionamento offline. O app foi construído de forma que os dados sejam gravados localmente para garantir rapidez e funcionamento sem internet.
+- **Supabase (PostgreSQL + Auth + Realtime)**: Backend-as-a-Service para autenticação, persistência em nuvem e segurança via Row Level Security (RLS).
 - **React Navigation**: Navegação em pilhas (Stack) com rotas modulares.
 
 ## 🛠️ O que já foi implementado (Status das Telas)
@@ -199,7 +200,7 @@ docs: atualiza instruções de instalação
 
 Para que o aplicativo saia do modo MVP/Simulação local e vá para produção:
 
-- [ ] **Integração Real de Autenticação e Banco na Nuvem (Firebase)**: Configurar as credenciais reais no arquivo `firebase.ts` e alterar os fluxos de salvamento para gravar no Firestore.
+- [ ] **Integração Real de Autenticação e Banco na Nuvem (Supabase)**: Configurar as credenciais reais no arquivo `.env` (baseado no `.env.example`), rodar o script `supabase/schema.sql` no painel do Supabase e conectar os fluxos de salvamento do `useStore.ts` ao `src/services/db.ts`.
 - [ ] **Implementar telas/fluxos para botões adicionais (Atualmente Mocks)**:
   - Na tela de Enfermagem: Implementar o modal/tela do "Cartão de Vacinas" e do "Registro de Curativos".
   - Na tela de Fisioterapia: Implementar a visualização dos "Exercícios de Hoje" e os "Lembretes de Postura".

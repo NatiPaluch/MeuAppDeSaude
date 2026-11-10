@@ -3,8 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoiding
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
-import { auth } from '../../services/firebase';
+import { supabase, isSupabaseConfigured } from '../../services/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 import { styles } from './styles';
@@ -21,34 +20,54 @@ export default function LoginScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: 'SEU_CLIENT_ID_WEB.apps.googleusercontent.com', // TODO: Preencher com as credenciais do Google Cloud
+    clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || 'SEU_CLIENT_ID_WEB.apps.googleusercontent.com',
   });
 
   useEffect(() => {
     if (response?.type === 'success') {
       const { id_token } = response.params;
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential)
-        .then(() => {
-          navigation.replace('Inicial');
+      supabase.auth
+        .signInWithIdToken({
+          provider: 'google',
+          token: id_token,
         })
-        .catch((error) => {
-          Alert.alert('Erro', 'Não foi possível fazer login com o Google.');
-          console.error(error);
+        .then(({ error }) => {
+          if (error) {
+            Alert.alert('Erro', 'Não foi possível fazer login com o Google no Supabase.');
+            console.error(error);
+            return;
+          }
+          navigation.replace('Inicial');
         });
     }
   }, [response]);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!emailOrCpf || !password) {
       Alert.alert('Erro', 'Preencha todos os campos.');
       return;
     }
-    
+
+    // Modo demonstração local (admin/admin) continua funcionando para testes rápidos
     if (emailOrCpf.trim().toLowerCase() === 'admin' && password.trim() === 'admin') {
       navigation.replace('Inicial');
+      return;
+    }
+
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: emailOrCpf.trim(),
+        password: password.trim(),
+      });
+
+      if (error) {
+        Alert.alert('Erro de Autenticação', error.message);
+        return;
+      }
+
+      navigation.replace('Inicial');
     } else {
-      Alert.alert('Erro', 'Credenciais inválidas. Use admin/admin para entrar.');
+      Alert.alert('Erro', 'Credenciais inválidas. Use admin/admin para entrar ou configure o Supabase no arquivo .env.');
     }
   };
 

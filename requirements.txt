@@ -9,8 +9,10 @@ react-native==0.81.5
 react-native-screens==4.16.0
 react-native-safe-area-context==5.6.0
 
-# Gerenciamento de Estado (Local Storage)
+# Gerenciamento de Estado (Local Storage) e Banco em Nuvem (Supabase)
 zustand
+@react-native-async-storage/async-storage==2.2.0
+@supabase/supabase-js
 
 # Ícones e Interface
 @expo/vector-icons
